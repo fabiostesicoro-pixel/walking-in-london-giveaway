@@ -28,7 +28,7 @@
 }
 
 .site-nav__link {
-  font-size: 12.5px;
+  font-size: 14px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -151,7 +151,7 @@ body {
 }
 
 .welcome-text {
-  font-size: 19px;
+  font-size: 21px;
   line-height: 1.7;
   color: var(--color-text);
   text-align: center;
