@@ -150,6 +150,37 @@ body {
   text-align: center;
 }
 
+.welcome-text {
+  font-size: 19px;
+  line-height: 1.7;
+  color: var(--color-text);
+  text-align: center;
+  max-width: 620px;
+  margin: 0 auto 32px;
+}
+
+.welcome-text strong {
+  color: var(--color-gold);
+  font-weight: 700;
+}
+
+.welcome-text a {
+  color: var(--color-gold);
+  text-decoration: underline;
+}
+
+.welcome-text a:hover {
+  color: var(--color-gold-hover);
+}
+
+.welcome-highlight {
+  display: inline-block;
+  color: #ff5c52;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 10px rgba(255, 92, 82, 0.5);
+}
+
 .form {
   display: flex;
   flex-direction: column;
