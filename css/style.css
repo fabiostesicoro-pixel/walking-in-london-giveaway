@@ -309,6 +309,11 @@ input:invalid.touched {
   text-decoration: underline;
 }
 
+.rules-list strong {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
 /* ---- Prizes ---- */
 
 .prize-table-wrap {
