@@ -1,4 +1,4 @@
-const HANDLE_STORAGE_KEY = "walking-in-london-quiz-handle";
+const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
 const form = document.getElementById("signup-form");
 const submitBtn = document.getElementById("submit-btn");
@@ -8,23 +8,6 @@ const successMessage = document.getElementById("success-message");
 form.querySelectorAll("input").forEach((input) => {
   input.addEventListener("blur", () => input.classList.add("touched"));
 });
-
-async function submitSignup(payload) {
-  const response = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/signups`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: CONFIG.SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
-      Prefer: "return=minimal",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Supabase insert failed: ${response.status}`);
-  }
-}
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -38,20 +21,34 @@ form.addEventListener("submit", async (event) => {
     return;
   }
 
+  const firstName = document.getElementById("first-name").value.trim();
+  const lastName = document.getElementById("last-name").value.trim();
+  const youtubeHandle = document.getElementById("youtube-handle").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const passwordConfirm = document.getElementById("password-confirm").value;
+
+  if (password !== passwordConfirm) {
+    formMessage.textContent = "Passwords don't match.";
+    formMessage.classList.add("error");
+    return;
+  }
+
   submitBtn.disabled = true;
   submitBtn.textContent = "Submitting...";
 
   try {
-    const youtubeHandle = document.getElementById("youtube-handle").value.trim();
+    const { data: authData, error: authError } = await supabaseClient.auth.signUp({ email, password });
+    if (authError) throw authError;
 
-    await submitSignup({
-      first_name: document.getElementById("first-name").value.trim(),
-      last_name: document.getElementById("last-name").value.trim(),
+    const { error: insertError } = await supabaseClient.from("signups").insert({
+      user_id: authData.user.id,
+      first_name: firstName,
+      last_name: lastName,
       youtube_handle: youtubeHandle,
-      email: document.getElementById("email").value.trim(),
+      email,
     });
-
-    localStorage.setItem(HANDLE_STORAGE_KEY, youtubeHandle);
+    if (insertError) throw insertError;
 
     form.hidden = true;
     successMessage.hidden = false;
@@ -60,7 +57,10 @@ form.addEventListener("submit", async (event) => {
     }, 1500);
   } catch (err) {
     console.error("Signup error:", err);
-    formMessage.textContent = "Something went wrong while submitting. Please try again in a moment.";
+    formMessage.textContent =
+      err.message && err.message.includes("already registered")
+        ? "That email is already registered. Try logging in instead."
+        : "Something went wrong while submitting. Please try again in a moment.";
     formMessage.classList.add("error");
   }
 

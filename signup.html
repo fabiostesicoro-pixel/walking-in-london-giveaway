@@ -23,8 +23,8 @@
 
     <section class="card">
       <p class="intro">
-        Sign up once. Every week, answer the quiz in the video comments
-        to enter the weekly draw.
+        Sign up once. Every week, watch the video, comment DONE on YouTube,
+        and answer the quiz to enter the weekly draw.
       </p>
 
       <form id="signup-form" class="form" novalidate>
@@ -52,6 +52,18 @@
           <input type="email" id="email" name="email" autocomplete="email" required>
         </div>
 
+        <div class="field-row">
+          <div class="field">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" autocomplete="new-password" minlength="6" required>
+          </div>
+          <div class="field">
+            <label for="password-confirm">Confirm Password</label>
+            <input type="password" id="password-confirm" name="password-confirm" autocomplete="new-password" minlength="6" required>
+          </div>
+        </div>
+        <p class="field__hint">At least 6 characters.</p>
+
         <button type="submit" class="btn" id="submit-btn">Enter the Giveaway</button>
 
         <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
@@ -67,6 +79,7 @@
     </footer>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/signup.js"></script>
 </body>

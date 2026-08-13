@@ -1,55 +1,36 @@
-const HANDLE_STORAGE_KEY = "walking-in-london-quiz-handle";
+const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
 const form = document.getElementById("login-form");
 const loginBtn = document.getElementById("login-btn");
 const loginMessage = document.getElementById("login-message");
 
-async function isRegistered(handle) {
-  const url = `${CONFIG.SUPABASE_URL}/rest/v1/rpc/is_registered`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: CONFIG.SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
-    },
-    body: JSON.stringify({ handle }),
-  });
-
-  if (!response.ok) throw new Error(`is_registered check failed: ${response.status}`);
-  return response.json();
-}
-
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const handle = document.getElementById("login-handle").value.trim();
+  const email = document.getElementById("login-email").value.trim();
+  const password = document.getElementById("login-password").value;
 
   loginMessage.textContent = "";
   loginMessage.classList.remove("error");
 
-  if (!handle) return;
+  if (!email || !password) return;
 
   loginBtn.disabled = true;
   loginBtn.textContent = "Checking...";
 
   try {
-    const registered = await isRegistered(handle);
-    if (registered) {
-      localStorage.setItem(HANDLE_STORAGE_KEY, handle);
-      loginMessage.textContent = "You're in! Taking you to the Quiz page…";
-      loginMessage.classList.remove("error");
-      loginMessage.classList.add("success");
-      setTimeout(() => {
-        window.location.href = "quiz.html";
-      }, 1200);
-      return;
-    }
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) throw error;
 
-    loginMessage.innerHTML = `We couldn't find that handle. Please <a href="signup.html">sign up</a> first.`;
-    loginMessage.classList.add("error");
+    loginMessage.textContent = "You're in! Taking you to the Quiz page…";
+    loginMessage.classList.remove("error");
+    loginMessage.classList.add("success");
+    setTimeout(() => {
+      window.location.href = "quiz.html";
+    }, 1000);
+    return;
   } catch (err) {
-    console.error("Error checking registration:", err);
-    loginMessage.textContent = "Something went wrong. Please try again.";
+    console.error("Login error:", err);
+    loginMessage.textContent = "Incorrect email or password. Please try again.";
     loginMessage.classList.add("error");
   }
 

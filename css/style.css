@@ -661,3 +661,39 @@ input:invalid.touched {
   text-decoration: none;
   display: inline-block;
 }
+
+.account-bar {
+  width: 100%;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 0 0 16px;
+  text-align: right;
+}
+
+.account-bar strong {
+  color: var(--color-gold);
+}
+
+.account-bar a {
+  color: var(--color-gold);
+  text-decoration: none;
+}
+
+.account-bar a:hover {
+  text-decoration: underline;
+}
+
+.form-footnote {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 13px;
+}
+
+.form-footnote a {
+  color: var(--color-gold);
+  text-decoration: none;
+}
+
+.form-footnote a:hover {
+  text-decoration: underline;
+}

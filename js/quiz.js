@@ -1,5 +1,5 @@
 const STATUS = { ACTIVE: "active", CLOSED: "closed" };
-const HANDLE_STORAGE_KEY = "walking-in-london-quiz-handle";
+const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
 let giveaways = [];
 let currentHandle = "";
@@ -47,21 +47,6 @@ async function fetchGiveaways() {
     },
   });
   if (!response.ok) throw new Error(`Failed to load giveaways: ${response.status}`);
-  return response.json();
-}
-
-async function isRegistered(handle) {
-  const url = `${CONFIG.SUPABASE_URL}/rest/v1/rpc/is_registered`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: CONFIG.SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
-    },
-    body: JSON.stringify({ handle }),
-  });
-  if (!response.ok) throw new Error(`is_registered check failed: ${response.status}`);
   return response.json();
 }
 
@@ -264,17 +249,32 @@ function tickTimers() {
 }
 
 async function init() {
-  const savedHandle = localStorage.getItem(HANDLE_STORAGE_KEY);
-  if (savedHandle) {
-    try {
-      const registered = await isRegistered(savedHandle);
-      if (registered) {
-        currentHandle = savedHandle;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+      const { data: profile, error } = await supabaseClient
+        .from("signups")
+        .select("youtube_handle")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (!error && profile) {
+        currentHandle = profile.youtube_handle;
         isVerified = true;
+
+        const accountBar = document.getElementById("account-bar");
+        document.getElementById("account-handle").textContent = currentHandle;
+        accountBar.hidden = false;
+
+        document.getElementById("logout-link").addEventListener("click", async (event) => {
+          event.preventDefault();
+          await supabaseClient.auth.signOut();
+          window.location.href = "index.html";
+        });
       }
-    } catch (err) {
-      console.error("Error checking saved handle:", err);
     }
+  } catch (err) {
+    console.error("Error checking session:", err);
   }
 
   await loadAndRender();

@@ -21,6 +21,11 @@
       <div class="hero__rule"></div>
     </header>
 
+    <p id="account-bar" class="account-bar" hidden>
+      Logged in as <strong id="account-handle"></strong> &middot;
+      <a href="#" id="logout-link">Log out</a>
+    </p>
+
     <section class="giveaway-section">
       <div id="quiz-list" class="giveaway-list"></div>
     </section>
@@ -38,6 +43,7 @@
     </footer>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/quiz.js"></script>
 </body>
