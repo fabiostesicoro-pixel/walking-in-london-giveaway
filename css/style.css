@@ -505,3 +505,58 @@ input:invalid.touched {
   font-size: 14px;
   color: var(--color-text-muted);
 }
+
+/* ---- Quiz ---- */
+
+.btn--small {
+  margin-top: 0;
+  padding: 10px 16px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.quiz-answer-form {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.quiz-answer-form label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.quiz-answer-row {
+  display: flex;
+  gap: 10px;
+}
+
+.quiz-answer-input {
+  flex: 1;
+  background: #0f0f11;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-family: var(--font-sans);
+}
+
+.quiz-answer-input:focus {
+  outline: none;
+  border-color: var(--color-gold);
+}
+
+.quiz-answer-status {
+  margin: 10px 0 0;
+  font-size: 13px;
+  min-height: 16px;
+}
+
+.quiz-answer-status.success {
+  color: var(--color-success);
+}
+
+.quiz-answer-status.error {
+  color: var(--color-error);
+}

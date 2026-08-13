@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Walking in London — Quiz</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="site-nav">
+    <a href="index.html" class="site-nav__link">Sign Up</a>
+    <a href="countdown.html" class="site-nav__link">Draw</a>
+    <a href="quiz.html" class="site-nav__link is-active">Quiz</a>
+    <a href="how-to-participate.html" class="site-nav__link">How to Participate</a>
+    <a href="prizes.html" class="site-nav__link">Prizes</a>
+  </nav>
+
+  <main class="page page--wide">
+    <header class="hero">
+      <p class="hero__kicker">WALKING IN LONDON</p>
+      <h1 class="hero__title">Giveaway Draw &mdash; Quiz</h1>
+      <div class="hero__rule"></div>
+    </header>
+
+    <section class="card" id="gate-card">
+      <p class="intro">
+        Enter the YouTube handle you signed up with to answer this week's quiz.
+        Remember: you also need to comment <strong>DONE</strong> under the video on YouTube
+        to complete your entry.
+      </p>
+
+      <form id="gate-form" class="form" novalidate>
+        <div class="field">
+          <label for="gate-handle">YouTube Handle</label>
+          <input type="text" id="gate-handle" name="gate-handle" placeholder="@yourname" required>
+        </div>
+        <button type="submit" class="btn" id="gate-btn">Enter</button>
+        <p id="gate-message" class="form-message" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="giveaway-section" id="quiz-section" hidden>
+      <div id="quiz-list" class="giveaway-list"></div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2026 Walking in London</p>
+    </footer>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/quiz.js"></script>
+</body>
+</html>
