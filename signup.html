@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Walking in London — Sign Up</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="site-nav">
+    <a href="countdown.html" class="site-nav__link">Draw</a>
+    <a href="quiz.html" class="site-nav__link">Quiz</a>
+    <a href="how-to-participate.html" class="site-nav__link">How to Participate</a>
+  </nav>
+
+  <main class="page">
+    <header class="hero">
+      <p class="hero__kicker"><a href="index.html">WALKING IN LONDON</a></p>
+      <h1 class="hero__title">Giveaway Draw</h1>
+      <div class="hero__rule"></div>
+    </header>
+
+    <section class="card">
+      <p class="intro">
+        Sign up once. Every week, answer the quiz in the video comments
+        to enter the weekly draw.
+      </p>
+
+      <form id="signup-form" class="form" novalidate>
+        <div class="field-row">
+          <div class="field">
+            <label for="first-name">First Name</label>
+            <input type="text" id="first-name" name="first-name" autocomplete="given-name" required>
+          </div>
+          <div class="field">
+            <label for="last-name">Last Name</label>
+            <input type="text" id="last-name" name="last-name" autocomplete="family-name" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="youtube-handle">YouTube Handle</label>
+          <input type="text" id="youtube-handle" name="youtube-handle" placeholder="@yourname" required>
+          <p class="field__hint">
+            You can find it on your YouTube profile, under your channel name (e.g. @mario_rossi).
+          </p>
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email" required>
+        </div>
+
+        <button type="submit" class="btn" id="submit-btn">Enter the Giveaway</button>
+
+        <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
+      </form>
+
+      <div id="success-message" class="success-message" hidden>
+        <p>You're in! Taking you to the Quiz page&hellip;</p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2026 Walking in London</p>
+    </footer>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/signup.js"></script>
+</body>
+</html>

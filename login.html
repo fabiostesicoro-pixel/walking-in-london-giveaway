@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Walking in London — Login</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="site-nav">
+    <a href="countdown.html" class="site-nav__link">Draw</a>
+    <a href="quiz.html" class="site-nav__link">Quiz</a>
+    <a href="how-to-participate.html" class="site-nav__link">How to Participate</a>
+  </nav>
+
+  <main class="page">
+    <header class="hero">
+      <p class="hero__kicker"><a href="index.html">WALKING IN LONDON</a></p>
+      <h1 class="hero__title">Giveaway Draw &mdash; Login</h1>
+      <div class="hero__rule"></div>
+    </header>
+
+    <section class="card">
+      <p class="intro">
+        Already signed up? Enter your YouTube handle to unlock the Quiz page
+        on this device.
+      </p>
+
+      <form id="login-form" class="form" novalidate>
+        <div class="field">
+          <label for="login-handle">YouTube Handle</label>
+          <input type="text" id="login-handle" name="login-handle" placeholder="@yourname" required>
+        </div>
+
+        <button type="submit" class="btn" id="login-btn">Login</button>
+
+        <p id="login-message" class="form-message" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2026 Walking in London</p>
+    </footer>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

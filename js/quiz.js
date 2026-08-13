@@ -134,7 +134,7 @@ function renderCard(item) {
       </form>`
     : `<div class="quiz-locked">
         <label>Your Answer</label>
-        <a href="index.html" class="btn btn--small">Sign Up</a>
+        <a href="signup.html" class="btn btn--small">Sign Up</a>
       </div>`;
 
   el.innerHTML = `
