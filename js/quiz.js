@@ -1,4 +1,4 @@
-const STATUS = { ACTIVE: "active" };
+const STATUS = { ACTIVE: "active", CLOSED: "closed" };
 const HANDLE_STORAGE_KEY = "walking-in-london-quiz-handle";
 
 let giveaways = [];
@@ -38,8 +38,8 @@ async function fetchFinalViews(videoId) {
   return Number(data.items?.[0]?.statistics?.viewCount ?? 0);
 }
 
-async function fetchActiveGiveaways() {
-  const url = `${CONFIG.SUPABASE_URL}/rest/v1/giveaways?status=eq.${STATUS.ACTIVE}&select=*`;
+async function fetchGiveaways() {
+  const url = `${CONFIG.SUPABASE_URL}/rest/v1/giveaways?select=*`;
   const response = await fetch(url, {
     headers: {
       apikey: CONFIG.SUPABASE_ANON_KEY,
@@ -106,7 +106,7 @@ async function submitAnswer(videoId, answer) {
   if (!updateResponse.ok) throw new Error(`Failed to update answer: ${updateResponse.status}`);
 }
 
-function renderCard(item) {
+function renderActiveCard(item) {
   const el = document.createElement("div");
   const expired = isPastExpiry(item);
   el.className = "g-card g-card--active" + (expired ? " g-card--pending" : "");
@@ -193,28 +193,60 @@ function renderCard(item) {
   return el;
 }
 
-function render() {
-  const list = document.getElementById("quiz-list");
-  list.innerHTML = "";
+function renderHistoryCard(item) {
+  const el = document.createElement("div");
+  el.className = "g-card g-card--history";
+  el.innerHTML = `
+    <div class="g-card__row">
+      <img class="g-card__thumb" src="${thumbnailUrl(item.video_id)}" alt="${item.title}">
+      <div class="g-card__body">
+        <p class="g-card__title">${item.title}</p>
+        <p class="g-card__meta">👁 ${item.final_views ?? "—"} final views</p>
+        <p class="g-card__meta">🏆 Prize: ${item.prize ?? "—"}</p>
+        <p class="g-card__meta">🎉 Winner: ${item.winner_handle ?? "—"}</p>
+      </div>
+    </div>
+  `;
+  return el;
+}
 
-  if (giveaways.length === 0) {
-    list.innerHTML = `<p class="g-empty">No active countdowns right now — check back soon.</p>`;
-    return;
+function render() {
+  const activeList = document.getElementById("quiz-list");
+  const historyList = document.getElementById("history-list");
+
+  activeList.innerHTML = "";
+  historyList.innerHTML = "";
+
+  const active = giveaways.filter((g) => g.status === STATUS.ACTIVE);
+  const history = giveaways
+    .filter((g) => g.status === STATUS.CLOSED)
+    .sort((a, b) => new Date(b.expires_at) - new Date(a.expires_at));
+
+  if (active.length === 0) {
+    activeList.innerHTML = `<p class="g-empty">No active countdowns right now — check back soon.</p>`;
+  } else {
+    active.forEach((item) => {
+      activeList.appendChild(renderActiveCard(item));
+    });
   }
 
-  giveaways.forEach((item) => {
-    list.appendChild(renderCard(item));
-  });
+  if (history.length === 0) {
+    historyList.innerHTML = `<p class="g-empty">No past winners yet.</p>`;
+  } else {
+    history.forEach((item) => {
+      historyList.appendChild(renderHistoryCard(item));
+    });
+  }
 }
 
 async function loadAndRender() {
   try {
-    giveaways = await fetchActiveGiveaways();
+    giveaways = await fetchGiveaways();
     render();
   } catch (err) {
     console.error("Error loading giveaways:", err);
     document.getElementById("quiz-list").innerHTML =
-      `<p class="g-empty">Unable to load the quiz right now. Please try again shortly.</p>`;
+      `<p class="g-empty">Unable to load the draw right now. Please try again shortly.</p>`;
   }
 }
 
