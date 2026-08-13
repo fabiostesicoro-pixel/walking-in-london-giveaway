@@ -2,8 +2,6 @@ const STATUS = { ACTIVE: "active" };
 const HANDLE_STORAGE_KEY = "walking-in-london-quiz-handle";
 
 let giveaways = [];
-let currentHandle = "";
-let isVerified = false;
 
 function thumbnailUrl(videoId) {
   return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
@@ -65,7 +63,7 @@ async function isRegistered(handle) {
   return response.json();
 }
 
-async function submitAnswer(videoId, answer) {
+async function submitAnswer(handle, videoId, answer) {
   // No SELECT policy on quiz_answers (answers stay private), and Postgres'
   // INSERT ... ON CONFLICT upsert needs SELECT rights to detect conflicts.
   // So: try INSERT, and if it's already there (unique violation), UPDATE instead.
@@ -75,7 +73,7 @@ async function submitAnswer(videoId, answer) {
     Authorization: `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
   };
   const payload = {
-    youtube_handle: currentHandle,
+    youtube_handle: handle,
     video_id: videoId,
     answer,
     submitted_at: new Date().toISOString(),
@@ -94,7 +92,7 @@ async function submitAnswer(videoId, answer) {
 
   const updateUrl =
     `${CONFIG.SUPABASE_URL}/rest/v1/quiz_answers` +
-    `?youtube_handle=eq.${encodeURIComponent(currentHandle)}` +
+    `?youtube_handle=eq.${encodeURIComponent(handle)}` +
     `&video_id=eq.${encodeURIComponent(videoId)}`;
 
   const updateResponse = await fetch(updateUrl, {
@@ -111,6 +109,8 @@ function renderCard(item) {
   const expired = isPastExpiry(item);
   el.className = "g-card g-card--active" + (expired ? " g-card--pending" : "");
 
+  const savedHandle = localStorage.getItem(HANDLE_STORAGE_KEY) ?? "";
+
   const badge = expired
     ? `<span class="g-badge g-badge--pending">DRAW WITHIN 24H</span>`
     : `<span class="g-badge g-badge--active">LIVE</span>`;
@@ -122,17 +122,6 @@ function renderCard(item) {
   const metaLine = expired
     ? `<p class="g-card__meta g-card__meta--views">Fetching final views&hellip;</p>`
     : `<p class="g-card__meta">👁 ${item.current_views ?? "—"} views</p>`;
-
-  const answerSection = isVerified
-    ? `<form class="quiz-answer-form" data-video-id="${item.video_id}">
-        <label>Your answer</label>
-        <div class="quiz-answer-row">
-          <input type="text" class="quiz-answer-input" placeholder="Type your answer" required>
-          <button type="submit" class="btn btn--small">Submit</button>
-        </div>
-        <p class="quiz-answer-status"></p>
-      </form>`
-    : `<p class="quiz-locked"><a href="index.html">Sign up</a> to answer</p>`;
 
   el.innerHTML = `
     ${badge}
@@ -146,7 +135,20 @@ function renderCard(item) {
         ${metaLine}
       </div>
     </div>
-    ${answerSection}
+    <form class="quiz-answer-form" data-video-id="${item.video_id}">
+      <div class="quiz-answer-grid">
+        <div>
+          <label>Your YouTube Handle</label>
+          <input type="text" class="quiz-handle-input" placeholder="@yourname" value="${savedHandle}">
+        </div>
+        <div>
+          <label>Your answer</label>
+          <input type="text" class="quiz-answer-input" placeholder="Type your answer">
+        </div>
+      </div>
+      <button type="submit" class="btn btn--small">Submit</button>
+      <p class="quiz-answer-status"></p>
+    </form>
   `;
 
   if (expired) {
@@ -158,34 +160,49 @@ function renderCard(item) {
       .catch((err) => console.error("Error fetching final views:", err));
   }
 
-  if (isVerified) {
-    const form = el.querySelector(".quiz-answer-form");
-    const input = el.querySelector(".quiz-answer-input");
-    const status = el.querySelector(".quiz-answer-status");
+  const form = el.querySelector(".quiz-answer-form");
+  const handleInput = el.querySelector(".quiz-handle-input");
+  const answerInput = el.querySelector(".quiz-answer-input");
+  const status = el.querySelector(".quiz-answer-status");
 
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const answer = input.value.trim();
-      if (!answer) return;
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const handle = handleInput.value.trim();
+    const answer = answerInput.value.trim();
 
-      const submitBtn = form.querySelector("button");
-      submitBtn.disabled = true;
+    status.textContent = "";
+    status.classList.remove("error", "success");
 
-      try {
-        await submitAnswer(item.video_id, answer);
-        status.textContent = "Answer received! Don't forget to comment DONE under the video on YouTube.";
-        status.classList.remove("error");
-        status.classList.add("success");
-      } catch (err) {
-        console.error("Error submitting answer:", err);
-        status.textContent = "Something went wrong. Please try again.";
-        status.classList.remove("success");
+    if (!handle || !answer) {
+      status.textContent = "Please fill in both your handle and your answer.";
+      status.classList.add("error");
+      return;
+    }
+
+    const submitBtn = form.querySelector("button");
+    submitBtn.disabled = true;
+
+    try {
+      const registered = await isRegistered(handle);
+      if (!registered) {
+        status.innerHTML = `We couldn't find that handle. Please <a href="index.html">sign up</a> first.`;
         status.classList.add("error");
+        submitBtn.disabled = false;
+        return;
       }
 
-      submitBtn.disabled = false;
-    });
-  }
+      await submitAnswer(handle, item.video_id, answer);
+      localStorage.setItem(HANDLE_STORAGE_KEY, handle);
+      status.textContent = "Answer received! Don't forget to comment DONE under the video on YouTube.";
+      status.classList.add("success");
+    } catch (err) {
+      console.error("Error submitting answer:", err);
+      status.textContent = "Something went wrong. Please try again.";
+      status.classList.add("error");
+    }
+
+    submitBtn.disabled = false;
+  });
 
   return el;
 }
@@ -228,60 +245,6 @@ function tickTimers() {
   if (anyExpired) render();
 }
 
-async function verifyHandle(handle, { silent } = {}) {
-  const handleBtn = document.getElementById("handle-btn");
-  const handleMessage = document.getElementById("handle-message");
-
-  if (!silent) {
-    handleMessage.textContent = "";
-    handleMessage.classList.remove("error");
-    handleBtn.disabled = true;
-    handleBtn.textContent = "Checking...";
-  }
-
-  try {
-    const registered = await isRegistered(handle);
-    if (registered) {
-      currentHandle = handle;
-      isVerified = true;
-      localStorage.setItem(HANDLE_STORAGE_KEY, handle);
-      if (!silent) {
-        handleMessage.textContent = "Verified! You can now answer below.";
-        handleMessage.classList.remove("error");
-        handleMessage.classList.add("success");
-      }
-      render();
-    } else if (!silent) {
-      handleMessage.textContent = "We couldn't find that handle. Please sign up first on the Sign Up page.";
-      handleMessage.classList.add("error");
-    }
-  } catch (err) {
-    console.error("Error checking registration:", err);
-    if (!silent) {
-      handleMessage.textContent = "Something went wrong. Please try again.";
-      handleMessage.classList.add("error");
-    }
-  }
-
-  if (!silent) {
-    handleBtn.disabled = false;
-    handleBtn.textContent = "Verify";
-  }
-}
-
-document.getElementById("handle-form").addEventListener("submit", (event) => {
-  event.preventDefault();
-  const handle = document.getElementById("handle-input").value.trim();
-  if (!handle) return;
-  verifyHandle(handle);
-});
-
 loadAndRender();
 setInterval(tickTimers, 1000);
 setInterval(loadAndRender, 60 * 1000);
-
-const savedHandle = localStorage.getItem(HANDLE_STORAGE_KEY);
-if (savedHandle) {
-  document.getElementById("handle-input").value = savedHandle;
-  verifyHandle(savedHandle, { silent: true });
-}
