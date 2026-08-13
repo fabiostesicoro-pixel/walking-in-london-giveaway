@@ -23,24 +23,18 @@
       <div class="hero__rule"></div>
     </header>
 
-    <section class="card" id="gate-card">
-      <p class="intro">
-        Enter the YouTube handle you signed up with to answer this week's quiz.
-        Remember: you also need to comment <strong>DONE</strong> under the video on YouTube
-        to complete your entry.
-      </p>
-
-      <form id="gate-form" class="form" novalidate>
-        <div class="field">
-          <label for="gate-handle">YouTube Handle</label>
-          <input type="text" id="gate-handle" name="gate-handle" placeholder="@yourname" required>
+    <section class="quiz-identity">
+      <form id="handle-form" class="quiz-identity__form">
+        <label for="handle-input">Your YouTube Handle</label>
+        <div class="quiz-identity__row">
+          <input type="text" id="handle-input" placeholder="@yourname">
+          <button type="submit" class="btn btn--small" id="handle-btn">Verify</button>
         </div>
-        <button type="submit" class="btn" id="gate-btn">Enter</button>
-        <p id="gate-message" class="form-message" role="status" aria-live="polite"></p>
+        <p id="handle-message" class="form-message" role="status" aria-live="polite"></p>
       </form>
     </section>
 
-    <section class="giveaway-section" id="quiz-section" hidden>
+    <section class="giveaway-section">
       <div id="quiz-list" class="giveaway-list"></div>
     </section>
 
