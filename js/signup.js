@@ -1,3 +1,5 @@
+const HANDLE_STORAGE_KEY = "walking-in-london-quiz-handle";
+
 const form = document.getElementById("signup-form");
 const submitBtn = document.getElementById("submit-btn");
 const formMessage = document.getElementById("form-message");
@@ -40,15 +42,22 @@ form.addEventListener("submit", async (event) => {
   submitBtn.textContent = "Submitting...";
 
   try {
+    const youtubeHandle = document.getElementById("youtube-handle").value.trim();
+
     await submitSignup({
       first_name: document.getElementById("first-name").value.trim(),
       last_name: document.getElementById("last-name").value.trim(),
-      youtube_handle: document.getElementById("youtube-handle").value.trim(),
+      youtube_handle: youtubeHandle,
       email: document.getElementById("email").value.trim(),
     });
 
+    localStorage.setItem(HANDLE_STORAGE_KEY, youtubeHandle);
+
     form.hidden = true;
     successMessage.hidden = false;
+    setTimeout(() => {
+      window.location.href = "quiz.html";
+    }, 1500);
   } catch (err) {
     console.error("Signup error:", err);
     formMessage.textContent = "Something went wrong while submitting. Please try again in a moment.";
