@@ -150,6 +150,15 @@ body {
   text-align: center;
 }
 
+.remember-heading {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #ff5c52;
+  margin: 0 0 12px;
+}
+
 .welcome-text {
   font-size: 21px;
   line-height: 1.7;
